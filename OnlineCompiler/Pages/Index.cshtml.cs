@@ -16,7 +16,6 @@ namespace OnlineCompiler.Pages
 
         public void OnGet()
         {
-            Message = $"Welcum\nThe time now is: {DateTime.Now.ToLongTimeString()}";
         }
     }
 }

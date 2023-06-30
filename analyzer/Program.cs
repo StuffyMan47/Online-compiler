@@ -17,6 +17,8 @@ using System.CodeDom.Compiler;
 using Microsoft.CSharp;
 using System.Runtime.Remoting.Messaging;
 using Analyzer;
+using System.Runtime.Loader;
+using System.Reflection.Metadata;
 
 namespace analyzer
 {
@@ -46,17 +48,17 @@ namespace analyzer
                 //    File.AppendAllText(logPath, warningsTestJson.ToString());
 
                 //тестовая запись ошибок из .txt в лог файл
-                File.AppendAllText(logPath, Anal(inputPath));
+                ////////////////////////////////////////////////////////////////////File.AppendAllText(logPath, Anal(code));
 
                 //Console.WriteLine("///////////////\n"+messages+"\n/////////////////////////////");
                 //File.AppendAllText(logPath, compilerResults.ToString());
 
-                Console.WriteLine(("----------------------------\n"+CodeStart(code)+"\n-----------------------------"));
-                //Не работает
-                //File.AppendAllText(logPath, Anal1(inputPath));
+                ////////////////////////////////////////////////////////////////////Console.WriteLine(("----------------------------\n"+CodeStart(code)+"\n-----------------------------"));
+				//Не работает
+				//File.AppendAllText(logPath, Anal1(inputPath));
 
-                //Проверка решения (всех файлов проекта с помощью файла .sln)
-                foreach (var document in project.Documents)
+				//Проверка решения (всех файлов проекта с помощью файла .sln)
+				foreach (var document in project.Documents)
                 {
                     var tree = document.GetSyntaxTreeAsync().Result;
                     var ifWalker = new IfWalker();
@@ -73,8 +75,50 @@ namespace analyzer
                     if (warningsMethod.Length != 0)
                         File.AppendAllText(logPath, warningsMethod.ToString());
                 }
-            }
-        }
+
+				string[] trustedAssembliesPaths = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")).Split(Path.PathSeparator);
+
+				List<PortableExecutableReference> references = new List<PortableExecutableReference>();
+
+				foreach (var refAsm in trustedAssembliesPaths)
+				{
+					references.Add(MetadataReference.CreateFromFile(refAsm));
+				}
+
+				var compilation = CSharpCompilation.Create("a")
+					.WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
+					.AddReferences(references)
+					.AddSyntaxTrees(CSharpSyntaxTree.ParseText(
+						@"
+                        using System;
+ 
+                        public static class C
+                        {
+                            public static void M(ff)
+                            {
+                                Console.WriteLine(""Hello Roslyn."");
+                            }
+                        }
+                    "));
+
+				var fileName = "MyNewDLL.dll";
+
+				var result = compilation.Emit(fileName);
+
+				if (!result.Success)
+				{
+					foreach (var diag in result.Diagnostics)
+						Console.WriteLine(diag);
+					return;
+				}
+
+				var MyNewDLL = AssemblyLoadContext.Default.LoadFromAssemblyPath(Path.GetFullPath(fileName));
+
+				MyNewDLL.GetType("C").GetMethod("M").Invoke(null, null);
+
+				Console.ReadLine();
+			}
+		}
 
         public static StringBuilder Warnings { get; } = new StringBuilder();
 

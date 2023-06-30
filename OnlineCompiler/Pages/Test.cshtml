@@ -1,22 +1,16 @@
 ﻿@page
+@using Analyzer;
 @model OnlineCompiler.Pages.TestModel
 @{
 }
 
 @functions {
-	//public string EnterData()
-	//{
-	//	string code = Request.Form["code1"];
-	//	Console.WriteLine(code);
-	//	var testModel = new TestModel();
-	//	testModel.ReadTextArea(code);
-	//	if (String.IsNullOrEmpty(testModel.errors))
-	//		return code;
-	//	//return testModel.consoleOut.ToString() + testModel.warnings.ToString();
-	//	else
-	//		return code;
-	//	//return testModel.errors;
-	//}
+	public string EnterData()
+	{
+		string codeFromTextArea = "no"; //GetCodeFromTextArea();
+		Console.WriteLine(codeFromTextArea);
+		return codeFromTextArea;
+	}
 }
 
 <!DOCTYPE html>
@@ -48,80 +42,49 @@
 			top: auto;
 			float: left;
 		}
+
+		lable{
+			font-size: 20px;
+			font-weight: 700;
+			color: black;
+		}
 	</style>
 </head>
 
 <body onload="initialize()" onresize="onresize_sub()">
-	
+
 	<h1>C# Online Compiler</h1>
-	<form method="post" action="postcode>
 	<div>
 		<div class="textarea">
+			<form id="form1" method="post" novalidate action="Test">
+
 			<textarea class="rownr" rows="20" cols="3" value="1" readonly></textarea>
 			<span>
-
-				<textarea id="code" name="code1" class="txt" rows="20" cols="150" nowrap="nowrap" wrap="hard" runat="server"
+					<textarea id="code" name="code2" class="txt" rows="20" cols="150" nowrap="nowrap" wrap="hard" runat="server"
 						  autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-						  onclick="selectionchanged(this)" onkeyup="keyup(this,event)" oninput="input_changed(this)" onscroll="scroll_changed(this)">
-using System;
-using System.IO;
-namespace Test
-{
-    public class TestClass
-    {
-        static void Main(string[] args)
-        {
-	    int a = 9;
-	    int b = 10;
-	    int c = a + b;
-            //File.WriteAllText("result.txt", "The Result of program");
-	    Console.WriteLine("Если работает, то кайф");
-	    Console.WriteLine("c = " + c);
-	    if (num==10)
-                Console.WriteLine("false");
-            else
-                Console.WriteLine("false");
-        }
-	static int sum()
-	{
-	    int a = 9;
-	    int b = 10;
-	    return a + b;
-	}
-    }
-}</textarea>
+						  onclick="selectionchanged(this)" onkeyup="keyup(this,event)" oninput="input_changed(this)" onscroll="scroll_changed(this)">@Model.codeFromePage</textarea>
 	<br />
 	<br />
 				<label>Current position: </label><input id="sel_in" style="border-style:none" readonly>
 			</span>
+				<input type="submit" value="Отправить">
+			</form>
 		</div>
 		<div class="textarea">
-			<textarea class="rownr" rows="20" cols="3" value="1" readonly></textarea>
 			<span>
-				<form method="post">
-				@Html.TextArea("console1", "no", new {@id="console", @class="txt", @rows="20", @cols="150", @nowrap="nowrap", @wrap="hard", @runat="server",
+				<lable>Console</lable><br/>
+				@Html.TextArea("console1", $"{Model.consoleOnPage}\n", new {@id="console", @class="txt", @rows="8", @cols="150", @nowrap="nowrap", @wrap="hard", @runat="server",
 				@autocomplete="off", @autocorrect="off", @autocapitalize="off", @spellcheck="false",
-				@onclick="selectionchanged(this)", @onkeyup="keyup(this,event)", @oninput="input_changed(this)", @onscroll="scroll_changed(this)", @readonly="true"})
-				</form><br /><br />
-				<label>Current position: </label><input id="sel_in1" style="border-style:none" readonly>
-				
+				@onclick="selectionchanged(this)", @onkeyup="keyup(this,event)", @oninput="input_changed(this)", @onscroll="scroll_changed(this)", @readonly="true"})<br /><br />
+				<lable>Static  analyzer  warnings</lable>
+				@Html.TextArea("console1", $"{Model.staticAnalyzerWarnings}", new {@id="console", @class="txt", @rows="7", @cols="150", @nowrap="nowrap", @wrap="hard", @runat="server",
+				@autocomplete="off", @autocorrect="off", @autocapitalize="off", @spellcheck="false",
+				@onclick="selectionchanged(this)", @onkeyup="keyup(this,event)", @oninput="input_changed(this)", @onscroll="scroll_changed(this)", @readonly="true"})<br /><br />
 			</span>
 		</div>
-		<button Onclick="RazorFunction()">Compile</button>
 	</div>
-	</form>
 </body>
 </html>
-
-
-<script>
-	function RazorFunction() {
-		console.log("Запускается");
-		$("button").html('Нажалось');
-		console.log(document.getElementById('code').value);
-	}
-</script>
-
 
 
 <SCRIPT Language="javascript">
@@ -188,4 +151,8 @@ namespace Test
 		return txt.split('\n').length + 1;
 	}
 
+	function RazorFunction() {
+		console.log("Запускается");
+		$("ChangeL").html('Нажалось');
+		}
 </SCRIPT>

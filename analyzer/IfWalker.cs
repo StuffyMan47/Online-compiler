@@ -11,8 +11,11 @@ namespace Analyzer
     internal class IfWalker: CSharpSyntaxWalker
     {
         public StringBuilder Warnings { get; } = new StringBuilder();
+        public StringBuilder WarningsRu { get; } = new StringBuilder();
 
-        const string warningMessageFormat = "'if' with equal 'then' and 'else' blocks is found at line {1}";
+        const string warningMessageFormatRu = "В условном операторе на строке {0} одинаковые операции в 'if' и в 'else'";
+
+		const string warningMessageFormat = "'if' with equal 'then' and 'else' blocks is found at line {0}";
 
         //Метод с проверкой на равенство then и else
         static bool ApplyRuleIfEqualElsr(IfStatementSyntax ifStatement)
@@ -35,7 +38,8 @@ namespace Analyzer
                     .StartLinePosition.Line + 1;
 
                 Warnings.AppendLine(String.Format(warningMessageFormat, lineNumber));
-            }
+				WarningsRu.AppendLine(String.Format(warningMessageFormatRu, lineNumber));
+			}
 
             base.VisitIfStatement(node);
         }

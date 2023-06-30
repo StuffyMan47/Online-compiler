@@ -11,8 +11,13 @@ namespace Analyzer
     internal class MethodWalker: CSharpSyntaxWalker
     {
         public StringBuilder Warnings { get; } = new StringBuilder();
+        public StringBuilder WarningsRu { get; } = new StringBuilder();
 
-        const string warningMessageFormat = "Method name '{0}' does not start with capital letter " + 
+        const string warningMessageFormatRu = "Название метода '{0}' с маленькой буквы " +
+			"в {1} строке";
+
+
+		const string warningMessageFormat = "Method name '{0}' does not start with capital letter " + 
             "at {1} line";
 
         static bool ApplyRuleUpperChar(MethodDeclarationSyntax node, out string methodName)
@@ -30,7 +35,9 @@ namespace Analyzer
                     .StartLinePosition.Line + 1;
 
                 Warnings.AppendLine(String.Format(warningMessageFormat, methodName, lineNumber));
-            }
+                WarningsRu.AppendLine(String.Format(warningMessageFormatRu, methodName, lineNumber));
+
+			}
             base.VisitMethodDeclaration(node);
         }
     }

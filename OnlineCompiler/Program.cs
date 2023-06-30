@@ -1,9 +1,14 @@
 using Analyzer;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorPages();
+builder.Services.AddRazorPages(options =>
+{
+	// отключаем глобально Antiforgery-токен
+	options.Conventions.ConfigureFilter(new IgnoreAntiforgeryTokenAttribute());
+});
 
 var app = builder.Build();
 
@@ -32,14 +37,22 @@ app.MapRazorPages();
 app.Run(async (context) =>
 {
 	context.Response.ContentType = "text/html; charset=utf-8";
-	if (context.Request.Path == "/postcode")
-	{
-		var form = context.Request.Form;
-		string code = form["code1"];
-		await context.Response.WriteAsync($"Code: ${code}");
-	}
 
+    // если обращение идет по адресу "/postuser", получаем данные формы
+    if (context.Request.Path == "/Test")
+    {
+        var form = context.Request.Form;
+        string name = form["code2"].ToString();
+        await context.Response.WriteAsync($"<div><p>Name: {name}</p>");
+        Console.WriteLine(form["code2"].ToString());
+    }
+    else
+    {
+        await context.Response.SendFileAsync("html/index.html");
+    }
 });
+
+app.Run();
 
 //class Back { 
 //public string errors;
